@@ -7,8 +7,11 @@ export const OpenAIStream = async (messages: Message[]) => {
 
   // MODIFICATIONS: 
   // ORIGINAL: https://api.openai.com/v1/chat/completions
-  // NOW - chat-agent-api: http://localhost:5000/langchain-agent-tools-ex
-  const res = await fetch("http://localhost:5000/langchain-agent-tools-ex", {
+  // NEW:
+  // 1. http://localhost:5000/langchain-agent-tools-ex 
+  // 2. http://localhost:5000/chat-mistral-large-ui
+  // 3. http://localhost:5000/langchain-agent/cosmos-db/tools/pdf
+  const res = await fetch("http://localhost:5000/langchain-agent/cosmos-db/tools/pdf", {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`

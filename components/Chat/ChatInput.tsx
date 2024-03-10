@@ -1,6 +1,7 @@
 import { Message } from "@/types";
 import { IconArrowUp } from "@tabler/icons-react";
 import { FC, KeyboardEvent, useEffect, useRef, useState } from "react";
+import axios from 'axios';
 
 interface Props {
   onSend: (message: Message) => void;
@@ -29,7 +30,7 @@ export const ChatInput: FC<Props> = ({ onSend }) => {
     onSend({ role: "user", content });
     setContent("");
   };
-
+  
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -44,6 +45,32 @@ export const ChatInput: FC<Props> = ({ onSend }) => {
     }
   }, [content]);
 
+
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleUploadPDF = async () => {
+    if (!selectedFile) {
+      console.log('No file selected');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('pdf', selectedFile);
+    try {
+      const response = await axios.post("http://localhost:5000/langchain-agent/cosmos-db/tools/pdf", formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (response.data) {
+        alert("Upload completed successfully")
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
   return (
     <div className="relative">
       <textarea
@@ -57,6 +84,26 @@ export const ChatInput: FC<Props> = ({ onSend }) => {
         onKeyDown={handleKeyDown}
       />
 
+      <div>
+        <input
+          type="file"
+          accept=".pdf"
+          onChange={handleFileChange}
+        />
+        <button  
+          style={{
+              backgroundColor: '#e5e7eb',
+              color: 'black',
+              padding: '3px 5px',
+              border: 'black',
+              outline: '1px solid gray',
+              fontSize: '15px',
+              cursor: 'pointer',
+          }}
+          onClick={() => handleUploadPDF()}>
+            Upload
+        </button>
+      </div>
       <button onClick={() => handleSend()}>
         <IconArrowUp className="absolute right-2 bottom-3 h-8 w-8 hover:cursor-pointer rounded-full p-1 bg-blue-500 text-white hover:opacity-80" />
       </button>
