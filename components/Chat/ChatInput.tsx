@@ -120,36 +120,37 @@ export const ChatInput: FC<Props> = ({ onSend }) => {
         <LinearProgress />
       </Box>}
       <div>
-        <input
-          type="file"
-          accept=".pdf"
-          onChange={handleFileChange}
-        />
-         <Button
-            onClick={() => handleUploadPDF()}
+        <Button
             component="label"
             role={undefined}
             variant="contained"
             tabIndex={-1}
+            style={{
+              marginRight: 10,
+              marginTop: 10
+            }}
+        >
+          Select file
+          <VisuallyHiddenInput
+              type="file"
+              accept=".pdf"
+              style={{
+                display: "inline"
+              }}
+              onChange={handleFileChange}
+          />
+        </Button>
+        <Button
+            onClick={() => handleUploadPDF()}
+            component="label"
+            variant="contained"
             startIcon={<CloudUploadIcon />}
+            style={{
+              marginTop: 10
+            }}
         >
           Upload file
-          <VisuallyHiddenInput type="file" />
         </Button>
-        {/* <Button  
-          variant="contained"
-          // style={{
-          //     backgroundColor: '#e5e7eb',
-          //     color: 'black',
-          //     padding: '3px 5px',
-          //     border: 'black',
-          //     outline: '1px solid gray',
-          //     fontSize: '15px',
-          //     cursor: 'pointer',
-          // }}
-          onClick={() => handleUploadPDF()}>
-            Upload
-        </Button> */}
       </div>
       <button onClick={() => handleSend()}>
         <IconArrowUp className="absolute right-2 bottom-3 h-8 w-8 hover:cursor-pointer rounded-full p-1 bg-blue-500 text-white hover:opacity-80" />
