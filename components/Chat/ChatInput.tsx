@@ -1,11 +1,30 @@
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import LinearProgress from '@mui/material/LinearProgress';
+import Button from '@mui/material/Button';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { styled } from '@mui/material/styles';
+
+import axios from 'axios';
 import { Message } from "@/types";
 import { IconArrowUp } from "@tabler/icons-react";
 import { FC, KeyboardEvent, useEffect, useRef, useState } from "react";
-import axios from 'axios';
 
 interface Props {
   onSend: (message: Message) => void;
 }
+
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
 
 export const ChatInput: FC<Props> = ({ onSend }) => {
   const [content, setContent] = useState<string>();
@@ -47,6 +66,8 @@ export const ChatInput: FC<Props> = ({ onSend }) => {
 
 
   const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -59,12 +80,17 @@ export const ChatInput: FC<Props> = ({ onSend }) => {
     }
     const formData = new FormData();
     formData.append('pdf', selectedFile);
+
     try {
+      setUploadSuccess(false)
+      setUploading(true)
       const response = await axios.post("http://localhost:5000/langchain-agent/cosmos-db/tools/pdf", formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       if (response.data) {
-        alert("Upload completed successfully")
+        console.log("Document upload successful");
+        setUploading(false)
+        setUploadSuccess(true)
       }
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -83,26 +109,47 @@ export const ChatInput: FC<Props> = ({ onSend }) => {
         onChange={handleChange}
         onKeyDown={handleKeyDown}
       />
-
+      {uploadSuccess && <Alert
+        onClose={() => setUploadSuccess(false)}
+        severity="success"
+        sx={{ width: '100%' }}
+       >
+          Upload Completed Successfully
+      </Alert>}
+      {uploading && !uploadSuccess && <Box sx={{ width: '100%' }}>
+        <LinearProgress />
+      </Box>}
       <div>
         <input
           type="file"
           accept=".pdf"
           onChange={handleFileChange}
         />
-        <button  
-          style={{
-              backgroundColor: '#e5e7eb',
-              color: 'black',
-              padding: '3px 5px',
-              border: 'black',
-              outline: '1px solid gray',
-              fontSize: '15px',
-              cursor: 'pointer',
-          }}
+         <Button
+            onClick={() => handleUploadPDF()}
+            component="label"
+            role={undefined}
+            variant="contained"
+            tabIndex={-1}
+            startIcon={<CloudUploadIcon />}
+        >
+          Upload file
+          <VisuallyHiddenInput type="file" />
+        </Button>
+        {/* <Button  
+          variant="contained"
+          // style={{
+          //     backgroundColor: '#e5e7eb',
+          //     color: 'black',
+          //     padding: '3px 5px',
+          //     border: 'black',
+          //     outline: '1px solid gray',
+          //     fontSize: '15px',
+          //     cursor: 'pointer',
+          // }}
           onClick={() => handleUploadPDF()}>
             Upload
-        </button>
+        </Button> */}
       </div>
       <button onClick={() => handleSend()}>
         <IconArrowUp className="absolute right-2 bottom-3 h-8 w-8 hover:cursor-pointer rounded-full p-1 bg-blue-500 text-white hover:opacity-80" />
